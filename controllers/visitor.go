@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"peer2peer/config"
 	"peer2peer/db/postgres"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -39,12 +40,17 @@ func (v Visitor) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Used for per user connection to DB
-	dbconn := db.GetDBConn(config.DBName)
+	dbconn, err := db.GetDBConn(config.DBName)
 	defer dbconn.Close()
+
+	if err != nil {
+		ThrowInternalErrAndExit(w)
+		return
+	}
 
 	// Insert into DB
 	stmt, _ := dbconn.Prepare(`INSERT INTO Visitor(firstname, lastname, age, gender, email,
-                               phonenumber, univeristy) VALUES($1,$2,$3,$4,$5,$6,$7);`)
+                               phonenumber, university) VALUES($1,$2,$3,$4,$5,$6,$7);`)
 
 	_, execerr := stmt.Exec(v.FirstName, v.LastName, v.Age,
 		v.Gender, v.Email, v.PhoneNumber, v.University)
@@ -73,7 +79,7 @@ func (v Visitor) Get(w http.ResponseWriter, r *http.Request) {
 		email        string
 		phonenumber  string
 		university   string
-		creationtime string
+		creationtime time.Time
 	)
 
 	vars := mux.Vars(r)
@@ -85,12 +91,8 @@ func (v Visitor) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Used for per user connection to DB
-	dbconn := db.GetDBConn(config.DBName)
+	dbconn, err := db.GetDBConn(config.DBName)
 	defer dbconn.Close()
-
-	err := dbconn.
-		QueryRow("SELECT id, firstname, lastname, age, gender, email, phonenumber,university, creationtime FROM users WHERE id = $1", id).
-		Scan(&visitorid, &fname, &lname, &age, &gender, &email, &phonenumber, &university, &creationtime)
 
 	if err != nil {
 		log.Println(err)
@@ -98,10 +100,20 @@ func (v Visitor) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = dbconn.
+		QueryRow("SELECT id, firstname, lastname, age, gender, email, phonenumber,university, creationtime FROM Visitor WHERE id = $1", id).
+		Scan(&visitorid, &fname, &lname, &age, &gender, &email, &phonenumber, &university, &creationtime)
+
+	if err != nil {
+		log.Println(err)
+		ThrowForbiddenedAndExit(w)
+		return
+	}
+
 	visitorResp := VistorResponse{
 		Visitor{fname, lname, age, gender, email, phonenumber, university},
 		visitorid,
-		creationtime}
+		creationtime.Format(time.RFC3339)}
 
 	jsonResponse, err := json.Marshal(visitorResp)
 	if err != nil {

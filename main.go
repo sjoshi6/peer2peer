@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"peer2peer/db/postgres"
 	"peer2peer/routers"
 	"runtime"
 	"time"
@@ -24,9 +24,14 @@ func main() {
 	}
 
 	port := ":" + string(args[0])
-	fmt.Println("Go API Server - Logs", time.Now())
-	fmt.Printf("API Server started at - %s\n", port)
 
+	log.Println("Go API Server - Logs", time.Now())
+	log.Printf("API Server started at - %s\n", port)
+
+	// Create all the missing tables before starting server
+	db.CreateTablesIfNotExists()
+
+	// Start the API Server
 	StartServer(port)
 }
 
