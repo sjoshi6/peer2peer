@@ -126,3 +126,39 @@ func (v Visitor) Get(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResponse)
 }
+
+// Delete : Delete a visitor from DB
+func (v Visitor) Delete(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if id == "" {
+		ThrowForbiddenedAndExit(w)
+		return
+	}
+
+	// Used for per user connection to DB
+	dbconn, err := db.GetDBConn(config.DBName)
+	defer dbconn.Close()
+
+	if err != nil {
+
+		log.Println(err)
+		ThrowInternalErrAndExit(w)
+		return
+	}
+
+	stmt, _ := dbconn.Prepare(`DELETE FROM Visitor WHERE id=$1`)
+	_, execerr := stmt.Exec(id)
+
+	if execerr != nil {
+
+		log.Println(execerr)
+		ThrowInternalErrAndExit(w)
+		return
+	}
+
+	RespondSuccessAndExit(w, "Visitor Deleted SuccessFully")
+
+}

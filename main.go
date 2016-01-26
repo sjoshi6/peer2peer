@@ -48,5 +48,4 @@ func StartServer(port string) {
 	router.Handle("/debug/vars", http.DefaultServeMux)
 
 	log.Fatal(http.ListenAndServe(port, router))
-
 }

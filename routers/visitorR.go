@@ -22,6 +22,12 @@ var routes = Routes{
 		"/v1/visitor",
 		v.Create,
 	},
+	Route{
+		"Delete Visitor",
+		"DELETE",
+		"/v1/visitor/{id}",
+		v.Delete,
+	},
 }
 
 // AddVisitorRoutes : Add Visitors Routes
