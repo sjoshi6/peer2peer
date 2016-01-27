@@ -40,3 +40,8 @@ sudo -u postgres psql postgres      // set "" as password when asked
 sudo -u postgres createdb peer2peer // Creates the DB
 
 ```
+
+Start App
+```
+sudo -u postgres ./peer2peer 8000
+```
