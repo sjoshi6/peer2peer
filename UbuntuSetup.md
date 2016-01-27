@@ -32,3 +32,11 @@ cd go-workspace/src/peer2peer
 go get
 go install
 ```
+
+Postgres DB setup
+```
+sudo apt-get install postgresql postgresql-contrib
+sudo -u postgres psql postgres      // set "" as password when asked
+sudo -u postgres createdb peer2peer // Creates the DB
+
+```
