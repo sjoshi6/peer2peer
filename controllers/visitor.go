@@ -31,6 +31,10 @@ type VistorResponse struct {
 
 // Create : Used to create a new visitor from http post request
 func (v Visitor) Create(w http.ResponseWriter, r *http.Request) {
+
+	// Incr the debug vals
+	RouteHits.Add("Create:POST /v1/visitor", 1)
+
 	decoder := json.NewDecoder(r.Body)
 
 	// Expand the json attached in post request
@@ -68,6 +72,9 @@ func (v Visitor) Create(w http.ResponseWriter, r *http.Request) {
 
 // Get : Used to get data about the visitor
 func (v Visitor) Get(w http.ResponseWriter, r *http.Request) {
+
+	// Incr the debug vals
+	RouteHits.Add("Get:GET /v1/visitor/{id}", 1)
 
 	// Vars to extract values from DB ; necessary due to uneven struct
 	var (
@@ -129,6 +136,9 @@ func (v Visitor) Get(w http.ResponseWriter, r *http.Request) {
 
 // Delete : Delete a visitor from DB
 func (v Visitor) Delete(w http.ResponseWriter, r *http.Request) {
+
+	// Incr the debug vals
+	RouteHits.Add("Delete:DELETE /v1/visitor/{id}", 1)
 
 	vars := mux.Vars(r)
 	id := vars["id"]

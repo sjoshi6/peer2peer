@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"expvar"
 	"net/http"
 )
 
@@ -9,6 +10,9 @@ import (
     Typically used to send JSON replies back to the client
     Fixed format calls for 200,400 & 500 status codes
 */
+
+// RouteHits : Map for number of route hits
+var RouteHits = expvar.NewMap("routeHits").Init()
 
 // BasicResponse : JSON reply for API Calls
 type BasicResponse struct {
