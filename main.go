@@ -14,6 +14,7 @@ import (
 
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU() * 2)
+
 }
 
 func main() {
@@ -43,6 +44,9 @@ func StartServer(port string) {
 
 	// Add APP routes for various controllers
 	router = routers.AddVisitorRoutes(router)
+
+	// Add Auth routes
+	router = routers.AddAuthRoutes(router)
 
 	// This route is essential to view the monitoring stats for the app.
 	router.Handle("/debug/vars", http.DefaultServeMux)

@@ -9,7 +9,7 @@ import (
 
 var v controllers.Visitor
 
-var routes = Routes{
+var visitorroutes = Routes{
 	Route{
 		"Get Visitor",
 		"GET",
@@ -32,7 +32,7 @@ var routes = Routes{
 
 // AddVisitorRoutes : Add Visitors Routes
 func AddVisitorRoutes(r *mux.Router) *mux.Router {
-	for _, route := range routes {
+	for _, route := range visitorroutes {
 
 		var handler http.Handler
 		handler = route.HandlerFunc
