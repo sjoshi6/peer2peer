@@ -8,6 +8,7 @@ import (
 )
 
 var v controllers.Visitor
+var a controllers.Auth
 
 var visitorroutes = Routes{
 	Route{
@@ -32,6 +33,7 @@ var visitorroutes = Routes{
 
 // AddVisitorRoutes : Add Visitors Routes
 func AddVisitorRoutes(r *mux.Router) *mux.Router {
+
 	for _, route := range visitorroutes {
 
 		var handler http.Handler

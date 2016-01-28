@@ -33,3 +33,14 @@ func (a Auth) GrantToken(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(tokenBytes)
 }
+
+// RequireTokenAuthentication is used to ensure request token is validated before serving
+func (a Auth) RequireTokenAuthentication(w http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
+
+	token, err := jwtProvider.GetToken(req)
+	if err == nil && token.Valid {
+		next(w, req)
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
+}
