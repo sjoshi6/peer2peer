@@ -12,7 +12,7 @@ var auth controllers.Auth
 var authroutes = Routes{
 	Route{
 		"Grant Token",
-		"GET",
+		"POST",
 		"/v1/token",
 		auth.GrantToken,
 	},
