@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
 	"peer2peer/auth"
 	"peer2peer/credentials"
@@ -23,7 +25,7 @@ func (a Auth) GrantToken(w http.ResponseWriter, req *http.Request) {
 	token := jwtProvider.NewToken()
 
 	// This ID is to be set to the users ID recieved from the attached json not header.
-	token.Claims["id"] = "sjoshi"
+	token.Claims["id"] = "sjoshi6"
 	tokenBytes, err := jwtProvider.SignToken(token)
 
 	if err != nil {
@@ -38,9 +40,22 @@ func (a Auth) GrantToken(w http.ResponseWriter, req *http.Request) {
 func (a Auth) RequireTokenAuthentication(w http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 
 	token, err := jwtProvider.GetToken(req)
+
 	if err == nil && token.Valid {
+
+		log.Println("Valid token found")
+		log.Println(token.Claims["id"])
 		next(w, req)
+
 	} else {
+
 		w.WriteHeader(http.StatusUnauthorized)
+		jsonResponse, err := json.Marshal(BasicResponse{"Unauthorized", 401})
+
+		if err != nil {
+			log.Println(err)
+		}
+
+		w.Write(jsonResponse)
 	}
 }
