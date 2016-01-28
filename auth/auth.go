@@ -2,6 +2,7 @@ package auth
 
 import (
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -50,4 +51,38 @@ func (m *Manager) SignToken(token *jwt.Token) ([]byte, error) {
 	}
 
 	return []byte(jwtStr), err
+}
+
+// GetToken gets the signed JWT from the Authorization header. If the token is
+// missing, expired, or the signature does not validate, returns an error.
+func (m *Manager) GetToken(req *http.Request) (*jwt.Token, error) {
+
+	jwtString := req.Header.Get("Authorization")
+	if jwtString == "" {
+
+		// No auth header
+		return nil, jwt.ErrNoTokenInRequest
+	}
+
+	// parse the jwt auth String with the manager key and get back a token
+	// The getkey validates that the incoming token has valid methods and alogs.
+	// If all is valid it returns back a key to the jwt.Parse function
+	token, err := jwt.Parse(jwtString, m.getKey)
+
+	if err == nil && token.Valid {
+		// token parsed, exp/nbf checks out, signature verified, Valid is true
+		return token, nil
+	}
+	return nil, jwt.ErrNoTokenInRequest
+}
+
+// getKey accepts an unverified JWT and returns the signing/verification key.
+// Also ensures tha the token's algorithm matches the signing method expected
+// by the manager.
+func (m *Manager) getKey(unverified *jwt.Token) (interface{}, error) {
+	// require token alg to match the set signing method, do not allow none
+	if meth := unverified.Method; meth == nil || meth.Alg() != m.method.Alg() {
+		return nil, jwt.ErrHashUnavailable
+	}
+	return m.key, nil
 }
