@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"peer2peer/controllers"
+	"peer2peer/config"
 	"peer2peer/db/postgres"
 	"peer2peer/routers"
 	"runtime"
@@ -22,29 +22,28 @@ func init() {
 func main() {
 
 	args := os.Args[1:]
-	if len(args) < 2 {
-		log.Fatal("Usage : ./peer2peer <mode> <PortNumber>")
+	if len(args) < 1 {
+		log.Fatal("Usage : ./peer2peer <mode>")
 	}
 
 	mode := args[0]
-	port := ":" + string(args[1])
 
 	switch mode {
 
 	case "auth":
 		log.Println("Auth Server - Logs", time.Now())
-		log.Printf("Auth Server started at - %s\n", port)
-		StartAuthServer(port)
+		log.Printf("Auth Server started at - %s\n", config.AuthServerPort)
+		StartAuthServer(config.AuthServerPort)
 
 	case "api":
 		log.Println("API Server - Logs", time.Now())
-		log.Printf("API Server started at - %s\n", port)
+		log.Printf("API Server started at - %s\n", config.APIServerPort)
 
 		// Create all the missing tables before starting server
 		db.CreateTablesIfNotExists()
 
 		// Start the API Server
-		StartServer(port)
+		StartServer(config.APIServerPort)
 
 	default:
 		log.Fatal("Incorrect Choice of mode : Only auth / api is legal")
@@ -56,7 +55,8 @@ func main() {
 // StartServer : Start the API Server by calling this function
 func StartServer(port string) {
 
-	var a controllers.Auth
+	// Need to activate this for token based access
+	//var a controllers.Auth
 
 	// Creating a new mux router
 	var router = mux.NewRouter().StrictSlash(true)
@@ -68,7 +68,10 @@ func StartServer(port string) {
 	router.Handle("/debug/vars", http.DefaultServeMux)
 
 	n := negroni.Classic()
-	n.Use(negroni.HandlerFunc(a.RequireTokenAuthentication))
+
+	// Need to activate this for token based access
+	//n.Use(negroni.HandlerFunc(a.RequireTokenAuthentication))
+
 	n.UseHandler(router)
 	n.Run(port)
 

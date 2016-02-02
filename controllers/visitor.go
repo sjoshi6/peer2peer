@@ -34,7 +34,6 @@ func (v Visitor) Create(w http.ResponseWriter, r *http.Request) {
 
 	// Incr the debug vals
 	RouteHits.Add("Create:POST /v1/visitor", 1)
-
 	decoder := json.NewDecoder(r.Body)
 
 	// Expand the json attached in post request

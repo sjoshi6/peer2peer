@@ -20,6 +20,7 @@ type BasicResponse struct {
 	Status  int    `json:"status"`
 }
 
+
 // RespondOrThrowErr : Respond to general requests or exit with server err.
 func RespondOrThrowErr(responseObj BasicResponse, w http.ResponseWriter) {
 
