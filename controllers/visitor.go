@@ -39,7 +39,9 @@ func (v Visitor) Create(w http.ResponseWriter, r *http.Request) {
 	// Expand the json attached in post request
 	err := decoder.Decode(&v)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		ThrowForbiddenedAndExit(w)
+		return
 	}
 
 	// Used for per user connection to DB

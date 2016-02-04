@@ -8,3 +8,6 @@ var APIServerPort = ":8000"
 
 // AuthServerPort is used to specify the port of auth server
 var AuthServerPort = ":8001"
+
+// Cost is the cost of hashing
+var Cost = 10

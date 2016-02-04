@@ -48,10 +48,19 @@ func CreateTablesIfNotExists() error {
 	// Defer db close
 	defer db.Close()
 
-	// Creating the table
+	// Creating the tables
+	// Visitor Table
 	_, err = db.Exec(
 		"create table if not exists Visitor(id SERIAL PRIMARY KEY, firstname varchar(50) not null, lastname varchar(50), age int not null, gender varchar(1) not null, email varchar(100) not null, phonenumber varchar(15), university varchar(100), creationtime timestamp default current_timestamp);")
 
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// SignUp Table
+	_, err = db.Exec(
+		"CREATE TABLE IF NOT EXISTS SignUp(email VARCHAR(100) PRIMARY KEY, Password VARCHAR(500) NOT NULL);")
 	if err != nil {
 		log.Println(err)
 		return err

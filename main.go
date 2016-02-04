@@ -28,19 +28,21 @@ func main() {
 
 	mode := args[0]
 
+	// Create all the missing tables before starting server
+	db.CreateTablesIfNotExists()
+
 	switch mode {
 
 	case "auth":
 		log.Println("Auth Server - Logs", time.Now())
 		log.Printf("Auth Server started at - %s\n", config.AuthServerPort)
+
+		// Start the Auth Server
 		StartAuthServer(config.AuthServerPort)
 
 	case "api":
 		log.Println("API Server - Logs", time.Now())
 		log.Printf("API Server started at - %s\n", config.APIServerPort)
-
-		// Create all the missing tables before starting server
-		db.CreateTablesIfNotExists()
 
 		// Start the API Server
 		StartServer(config.APIServerPort)

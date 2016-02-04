@@ -16,6 +16,18 @@ var authroutes = Routes{
 		"/v1/token",
 		auth.GrantToken,
 	},
+	Route{
+		"SignUp",
+		"POST",
+		"/v1/signup",
+		auth.SignUpHandler,
+	},
+	Route{
+		"Login",
+		"POST",
+		"/v1/login",
+		auth.LoginHandler,
+	},
 }
 
 // AddAuthRoutes : Add Auth Routes

@@ -5,13 +5,31 @@ import (
 	"log"
 	"net/http"
 	"peer2peer/auth"
+	"peer2peer/config"
 	"peer2peer/credentials"
+	"peer2peer/db/postgres"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
+var hashCost = config.Cost
+
 // Auth is a blank stuct used to namespace auth routes
 type Auth struct{}
+
+// SignUp is used to handle signup requests
+type SignUp struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+// Login is used to handle login requests
+type Login struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
 
 // Start a new Auth Server
 var secretKey = credentials.SecretKey
@@ -58,4 +76,120 @@ func (a Auth) RequireTokenAuthentication(w http.ResponseWriter, req *http.Reques
 
 		w.Write(jsonResponse)
 	}
+}
+
+// SignUpHandler is used to manage signup requests
+func (a Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Incr the debug vals
+	RouteHits.Add("POST /v1/signup", 1)
+
+	// Creating a reference to hold signup data
+	var su SignUp
+
+	decoder := json.NewDecoder(r.Body)
+
+	// Expand the json attached in post request
+	err := decoder.Decode(&su)
+	if err != nil {
+		log.Println(err)
+		ThrowForbiddenedAndExit(w)
+		return
+	}
+
+	// Used for per user connection to DB
+	dbconn, err := db.GetDBConn(config.DBName)
+	defer dbconn.Close()
+
+	if err != nil {
+		ThrowInternalErrAndExit(w)
+		return
+	}
+
+	// Insert statement prepare
+	stmt, _ := dbconn.Prepare(`INSERT INTO SignUp(email, password) VALUES($1,$2);`)
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(su.Password), hashCost)
+	if err != nil {
+
+		log.Println("bcrypt hash creation broke")
+		log.Println(err)
+		ThrowInternalErrAndExit(w)
+		return
+
+	}
+
+	// if no hash err then execute statement
+
+	_, execerr := stmt.Exec(su.Email, string(hash))
+	if execerr != nil {
+
+		// If execution err occurs then throw error
+		log.Println(err)
+		ThrowInternalErrAndExit(w)
+		return
+	}
+
+	// If no error then give a success response
+	RespondSuccessAndExit(w, "User Added Successfully")
+
+}
+
+// LoginHandler is used to handle login requests
+func (a Auth) LoginHandler(w http.ResponseWriter, r *http.Request) {
+
+	var dbPassword string
+
+	// Incr the debug vals
+	RouteHits.Add("POST /v1/login", 1)
+
+	// Creating a reference to hold signup data
+	var loginReq Login
+
+	decoder := json.NewDecoder(r.Body)
+
+	// Expand the json attached in post request
+	err := decoder.Decode(&loginReq)
+	if err != nil {
+		log.Println(err)
+		ThrowForbiddenedAndExit(w)
+		return
+	}
+
+	// Used for per user connection to DB
+	dbconn, err := db.GetDBConn(config.DBName)
+	defer dbconn.Close()
+
+	if err != nil {
+		ThrowInternalErrAndExit(w)
+		return
+	}
+
+	err = dbconn.
+		QueryRow("SELECT password from SignUp WHERE email= $1", loginReq.Email).Scan(&dbPassword)
+
+	if err != nil {
+		log.Println(err)
+		ThrowInternalErrAndExit(w)
+		return
+	}
+
+	loginerr := bcrypt.CompareHashAndPassword([]byte(dbPassword), []byte(loginReq.Password))
+	if loginerr != nil {
+
+		// If err is thrown credentials are mismatched
+		responsecontent := BasicResponse{
+			"Login Credentials are incorrect",
+			400,
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		w.Header().Set("Status", "Client Error")
+		RespondOrThrowErr(responsecontent, w)
+		return
+	}
+
+	// If no error in comparehash means login Credentials match
+	RespondSuccessAndExit(w, "User Login Successful")
+
 }
