@@ -21,8 +21,9 @@ type Auth struct{}
 
 // SignUp is used to handle signup requests
 type SignUp struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	AdminToken string `json:"admintoken"`
 }
 
 // Login is used to handle login requests
@@ -98,6 +99,14 @@ func (a Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		ThrowForbiddenedAndExit(w)
 		return
+	}
+
+	if su.AdminToken != config.AdminToken {
+
+		log.Println("UI AdminToken did not match")
+		ThrowForbiddenedAndExit(w)
+		return
+
 	}
 
 	// Used for per user connection to DB

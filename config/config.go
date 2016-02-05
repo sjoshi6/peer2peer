@@ -11,3 +11,6 @@ var AuthServerPort = ":8001"
 
 // Cost is the cost of hashing
 var Cost = 10
+
+//AdminToken is used to control signup requests
+var AdminToken = "saurabhjoshisalilpai"

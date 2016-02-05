@@ -18,16 +18,16 @@ var visitorroutes = Routes{
 		v.Get,
 	},
 	Route{
-		"Add Visitor",
-		"POST",
-		"/v1/visitor",
-		v.Create,
-	},
-	Route{
 		"Delete Visitor",
 		"DELETE",
 		"/v1/visitor/{id}",
 		v.Delete,
+	},
+	Route{
+		"All Visitors",
+		"GET",
+		"/v1/visitors",
+		v.GetAll,
 	},
 }
 

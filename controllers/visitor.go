@@ -22,11 +22,19 @@ type Visitor struct {
 	University  string `json:"university" db:"university"`
 }
 
-// VistorResponse : Used to reply back to a visitor get request
-type VistorResponse struct {
+// Visitors is an array of visitor
+type Visitors []VisitorResponse
+
+// VisitorResponse : Used to reply back to a visitor get request
+type VisitorResponse struct {
 	Visitor
 	ID           string `json:"id" db:"id"`
 	CreationTime string `json:"creationtime" db:"creationtime"`
+}
+
+// VisitorsResponse is used to send back a reply of visitors array
+type VisitorsResponse struct {
+	Visitors Visitors `json:"visitors"`
 }
 
 // Create : Used to create a new visitor from http post request
@@ -118,7 +126,7 @@ func (v Visitor) Get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	visitorResp := VistorResponse{
+	visitorResp := VisitorResponse{
 		Visitor{fname, lname, age, gender, email, phonenumber, university},
 		visitorid,
 		creationtime.Format(time.RFC3339)}
@@ -133,6 +141,77 @@ func (v Visitor) Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResponse)
+}
+
+// GetAll is used to get all the visitors
+func (v Visitor) GetAll(w http.ResponseWriter, r *http.Request) {
+
+	// Incr the debug vals
+	RouteHits.Add("Get:GET /v1/visitors", 1)
+
+	// Vars to extract values from DB ; necessary due to uneven struct
+	var (
+		visitorid    string
+		fname        string
+		lname        string
+		age          string
+		gender       string
+		email        string
+		phonenumber  string
+		university   string
+		creationtime time.Time
+	)
+
+	// Used for per user connection to DB
+	dbconn, err := db.GetDBConn(config.DBName)
+	defer dbconn.Close()
+
+	if err != nil {
+		log.Println(err)
+		ThrowInternalErrAndExit(w)
+		return
+	}
+
+	rows, err := dbconn.Query("SELECT * FROM Visitor")
+	if err != nil {
+		log.Println(err)
+		ThrowInternalErrAndExit(w)
+		return
+	}
+
+	var visitorArr Visitors
+
+	for rows.Next() {
+
+		// Scan all the values for the given row
+		rows.Scan(&visitorid, &fname, &lname, &age, &gender, &email, &phonenumber, &university, &creationtime)
+
+		// Create a visitor object
+		visitorResp := VisitorResponse{
+			Visitor{fname, lname, age, gender, email, phonenumber, university},
+			visitorid,
+			creationtime.Format(time.RFC3339)}
+
+		visitorArr = append(visitorArr, visitorResp)
+	}
+
+	visitorsResp := VisitorsResponse{
+		Visitors: visitorArr,
+	}
+
+	jsonResponse, err := json.Marshal(visitorsResp)
+	if err != nil {
+
+		log.Println(err)
+		ThrowInternalErrAndExit(w)
+		return
+	}
+
+	// Append the data to response writer
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
+
 }
 
 // Delete : Delete a visitor from DB

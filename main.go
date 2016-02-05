@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"peer2peer/config"
+	"peer2peer/controllers"
 	"peer2peer/db/postgres"
 	"peer2peer/routers"
 	"runtime"
@@ -58,7 +59,7 @@ func main() {
 func StartServer(port string) {
 
 	// Need to activate this for token based access
-	//var a controllers.Auth
+	var a controllers.Auth
 
 	// Creating a new mux router
 	var router = mux.NewRouter().StrictSlash(true)
@@ -72,7 +73,7 @@ func StartServer(port string) {
 	n := negroni.Classic()
 
 	// Need to activate this for token based access
-	//n.Use(negroni.HandlerFunc(a.RequireTokenAuthentication))
+	n.Use(negroni.HandlerFunc(a.RequireTokenAuthentication))
 
 	n.UseHandler(router)
 	n.Run(port)

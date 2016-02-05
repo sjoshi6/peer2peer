@@ -23,6 +23,13 @@ var authroutes = Routes{
 		"/v1/login",
 		auth.LoginHandler,
 	},
+	// Needs to be here as it does not need auth tokens for access
+	Route{
+		"Add Visitor",
+		"POST",
+		"/v1/visitor",
+		v.Create,
+	},
 }
 
 // AddAuthRoutes : Add Auth Routes
