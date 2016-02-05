@@ -36,8 +36,8 @@ var secretKey = credentials.SecretKey
 var jwtProvider = auth.NewAuthManager([]byte(secretKey),
 	auth.Config{Method: jwt.SigningMethodHS256, TTL: 3600 * 24 * 3})
 
-// GrantToken : Route Handler to grant new token
-func (a Auth) GrantToken(w http.ResponseWriter, req *http.Request) {
+// grantToken is a local function used to grant new tokens to the user
+func (a Auth) grantToken(userid string) ([]byte, error) {
 
 	// create a new JWT with claims, jwts adds "iat" and "exp" claims
 	token := jwtProvider.NewToken()
@@ -46,12 +46,15 @@ func (a Auth) GrantToken(w http.ResponseWriter, req *http.Request) {
 	token.Claims["id"] = "sjoshi6"
 	tokenBytes, err := jwtProvider.SignToken(token)
 
+	log.Printf("Granting a new token to user %s \n", string(tokenBytes))
+
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println("Could not generate token")
+		return nil, err
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(tokenBytes)
+	return tokenBytes, nil
+
 }
 
 // RequireTokenAuthentication is used to ensure request token is validated before serving
@@ -131,7 +134,18 @@ func (a Auth) SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If no error then give a success response
-	RespondSuccessAndExit(w, "User Added Successfully")
+	// Aquire a new token to send the user
+	token, err := a.grantToken("sjoshi6")
+
+	if err != nil {
+
+		log.Println(err)
+		ThrowInternalErrAndExit(w)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(token)
 
 }
 
@@ -190,6 +204,18 @@ func (a Auth) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If no error in comparehash means login Credentials match
-	RespondSuccessAndExit(w, "User Login Successful")
+
+	// Aquire a new token to send the user
+	token, err := a.grantToken("sjoshi6")
+
+	if err != nil {
+
+		log.Println(err)
+		ThrowInternalErrAndExit(w)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(token)
 
 }

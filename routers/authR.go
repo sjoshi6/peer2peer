@@ -10,12 +10,7 @@ import (
 var auth controllers.Auth
 
 var authroutes = Routes{
-	Route{
-		"Grant Token",
-		"POST",
-		"/v1/token",
-		auth.GrantToken,
-	},
+
 	Route{
 		"SignUp",
 		"POST",
