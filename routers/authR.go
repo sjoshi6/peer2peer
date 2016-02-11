@@ -15,20 +15,26 @@ var authroutes = Routes{
 		"SignUp",
 		"POST",
 		"/v1/signup",
-		auth.SignUpHandler,
+		CORSHandler(auth.SignUpHandler),
 	},
 	Route{
 		"Login",
 		"POST",
 		"/v1/login",
-		auth.LoginHandler,
+		CORSHandler(auth.LoginHandler),
 	},
 	// Needs to be here as it does not need auth tokens for access
 	Route{
 		"Add Visitor",
 		"POST",
 		"/v1/visitor",
-		v.Create,
+		CORSHandler(v.Create),
+	},
+	Route{
+		"Options Handler",
+		"OPTIONS",
+		"/v1/login",
+		auth.OptionsHandler,
 	},
 }
 

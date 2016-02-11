@@ -208,6 +208,7 @@ func (a Auth) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(http.StatusBadRequest)
 		w.Header().Set("Status", "Client Error")
+
 		RespondOrThrowErr(responsecontent, w)
 		return
 	}
@@ -227,4 +228,13 @@ func (a Auth) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(token)
 
+}
+
+//OptionsHandler is used to handle the options route
+func (a Auth) OptionsHandler(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Write([]byte("Done"))
 }

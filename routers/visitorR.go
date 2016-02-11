@@ -15,19 +15,19 @@ var visitorroutes = Routes{
 		"Get Visitor",
 		"GET",
 		"/v1/visitor/{id}",
-		v.Get,
+		CORSHandler(v.Get),
 	},
 	Route{
 		"Delete Visitor",
 		"DELETE",
 		"/v1/visitor/{id}",
-		v.Delete,
+		CORSHandler(v.Delete),
 	},
 	Route{
 		"All Visitors",
 		"GET",
 		"/v1/visitors",
-		v.GetAll,
+		CORSHandler(v.GetAll),
 	},
 }
 
