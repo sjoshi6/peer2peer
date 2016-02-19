@@ -11,8 +11,8 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/codegangsta/negroni"
-	"github.com/gorilla/mux"
+	"peer2peer/Godeps/_workspace/src/github.com/codegangsta/negroni"
+	"peer2peer/Godeps/_workspace/src/github.com/gorilla/mux"
 )
 
 func init() {
