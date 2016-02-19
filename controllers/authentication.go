@@ -61,6 +61,11 @@ func (a Auth) grantToken(userid string) ([]byte, error) {
 // RequireTokenAuthentication is used to ensure request token is validated before serving
 func (a Auth) RequireTokenAuthentication(w http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 
+	if req.Method == "OPTIONS" {
+        log.Println("Found options skip check")
+		next(w, req)
+	}
+
 	token, err := jwtProvider.GetToken(req)
 
 	if err == nil && token.Valid {
@@ -234,7 +239,8 @@ func (a Auth) LoginHandler(w http.ResponseWriter, r *http.Request) {
 func (a Auth) OptionsHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.Write([]byte("Done"))
 }

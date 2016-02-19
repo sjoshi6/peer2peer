@@ -29,6 +29,12 @@ var visitorroutes = Routes{
 		"/v1/visitors",
 		CORSHandler(v.GetAll),
 	},
+	Route{
+		"Options Handler",
+		"OPTIONS",
+		"/v1/{rest:[a-zA-Z0-9]+}",
+		a.OptionsHandler,
+	},
 }
 
 // AddVisitorRoutes : Add Visitors Routes

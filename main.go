@@ -22,6 +22,8 @@ func init() {
 
 func main() {
 
+	log.Printf("Current Machine Descriptors %s/%s\n", runtime.GOOS, runtime.GOARCH)
+
 	args := os.Args[1:]
 	if len(args) < 1 {
 		log.Fatal("Usage : ./peer2peer <mode>")

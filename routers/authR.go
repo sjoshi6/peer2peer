@@ -33,7 +33,7 @@ var authroutes = Routes{
 	Route{
 		"Options Handler",
 		"OPTIONS",
-		"/v1/login",
+		"/v1/{rest:[a-zA-Z0-9]+}",
 		auth.OptionsHandler,
 	},
 }
